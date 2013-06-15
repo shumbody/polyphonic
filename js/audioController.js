@@ -54,18 +54,17 @@ var AudioController = (function(){
 	 *
 	 **/
 	var gotStream = function(stream){
-		console.log(stream)
-		// // Create an AudioNode from the stream
-		// var mediaStreamSource = audioContext.createMediaStreamSource(stream);
+		// Create an AudioNode from the stream
+		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
 
-		// // Connect to analyzer
-		// analyzer = audioContext.createAnalyser();
-		// analyzer.fftSize = 2048;
-		// mediaStreamSource.connect(analyzer);
+		// Connect to analyzer
+		analyzer = audioContext.createAnalyser();
+		analyzer.fftSize = 2048;
+		mediaStreamSource.connect(analyzer);
 
-		// // Connect to spectrum display
-		// var freqNode = freqDisplay.getAudioNode();
-		// mediaStreamSource.connect(freqNode);
+		// Connect to spectrum display
+		var freqNode = freqDisplay.getAudioNode();
+		mediaStreamSource.connect(freqNode);
 	}
 
 	var audioModule = {}// The public object we return

@@ -1,0 +1,30 @@
+body {
+	background-color: #000;
+	font-family: Helvetica;
+	margin: 0 auto;
+}
+
+#display-container{
+	height: 500px;
+	position: relative;
+	width: 100%;
+}
+
+#freq-display, #pitch-display{
+	height: inherit;
+	position: absolute;
+	width: inherit;
+}
+
+#toggle-btn {
+	background-color: #006699;
+	color: #fff;
+	cursor: pointer;
+	display: block;
+	font-size: 18px;
+	margin: 0 auto;
+	padding: 10px;
+	text-align: center;
+	width: 200px;
+}
+
