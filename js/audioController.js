@@ -21,8 +21,7 @@ var AudioController = (function(){
 	        }
 
 	        freqDisplay = new SpectrumBox(2048, 30, canvasId, audioContext);
-  			freqDisplay.setValidPoints(500);
-  			freqDisplay.getCanvasContext().fillStyle = 'rgb(150, 150, 150)';
+  			freqDisplay.getCanvasContext().fillStyle = 'rgb(255, 199, 47)';
 		}
 	};
 

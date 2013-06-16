@@ -1,6 +1,7 @@
 /*
    SpectrumBox - A JavaScript spectral analyzer.
    Mohit Cheppudira - 0xfe.blogspot.com
+   modified by Andrew Shum
 */
 
 /**
@@ -21,6 +22,9 @@ SpectrumBox.Types = {
   TIME: 2
 }
 
+// Lookup table for number of points in one bin on a log axis
+SpectrumBox.BinSizeLog = {}
+
 SpectrumBox.prototype.init = function(
     num_points, num_bins,
     canvas_id, audio_context, type) {
@@ -39,7 +43,7 @@ SpectrumBox.prototype.init = function(
   this.width = this.canvas.width;
   this.height = this.canvas.height;
   if (this.type == SpectrumBox.Types.FREQUENCY) {
-    this.bar_spacing = 3;
+    this.bar_spacing = 1;
   } else {
     this.bar_spacing = 1;
   }
@@ -51,6 +55,14 @@ SpectrumBox.prototype.init = function(
   this.fft = this.actx.createAnalyser();
   this.fft.fftSize = this.num_points;
   this.data = new Uint8Array(this.fft.frequencyBinCount);
+
+  // Create log table
+  var factor = 1.05; // Each bin has factor times more than the last
+  var norm = (Math.pow(factor, this.num_bins + 1)-1)/(factor-1);
+  var length = this.data.length;
+  for (var i = 0; i < this.num_bins; ++i){
+    SpectrumBox.BinSizeLog[i] = Math.floor(length*Math.pow(factor,i)/norm);
+  }
 }
 
 /* Returns the AudioNode of the FFT. You can route signals into this. */
@@ -109,15 +121,20 @@ SpectrumBox.prototype.update = function() {
   }
 
   var length = data.length;
-  if (this.valid_points > 0) length = this.valid_points;
+  //if (this.valid_points > 0) length = this.valid_points;
 
   // Clear canvas then redraw graph.
   this.ctx.clearRect(0, 0, this.width, this.height);
 
+  var bin_size_log = function(bin_index, num_bins, data_length){
+    return Math.floor(Math.log(bin_index)/Math.log(data_length)*num_bins);
+  }
+
   // Break the samples up into bins
-  var bin_size = Math.floor(length / this.num_bins);
   for (var i=0; i < this.num_bins; ++i) {
     var sum = 0;
+    var bin_size = SpectrumBox.BinSizeLog[i];
+
     for (var j=0; j < bin_size; ++j) {
       sum += data[(i * bin_size) + j];
     }
