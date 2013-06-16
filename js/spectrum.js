@@ -43,7 +43,7 @@ SpectrumBox.prototype.init = function(
   this.width = this.canvas.width;
   this.height = this.canvas.height;
   if (this.type == SpectrumBox.Types.FREQUENCY) {
-    this.bar_spacing = 1;
+    this.bar_spacing = 2;
   } else {
     this.bar_spacing = 1;
   }
@@ -57,11 +57,11 @@ SpectrumBox.prototype.init = function(
   this.data = new Uint8Array(this.fft.frequencyBinCount);
 
   // Create log table
-  var factor = 1.05; // Each bin has factor times more than the last
-  var norm = (Math.pow(factor, this.num_bins + 1)-1)/(factor-1);
-  var length = this.data.length;
-  for (var i = 0; i < this.num_bins; ++i){
-    SpectrumBox.BinSizeLog[i] = Math.floor(length*Math.pow(factor,i)/norm);
+  var factor = 1.3; // Each bin has factor times more than the last
+  var next_size = this.data.length;
+  for (var i = this.num_bins - 1; i >= 0; --i){
+    next_size = next_size / factor;
+    SpectrumBox.BinSizeLog[i] = Math.floor(next_size);
   }
 }
 
@@ -148,8 +148,8 @@ SpectrumBox.prototype.update = function() {
 
     if (this.type == SpectrumBox.Types.FREQUENCY) {
       this.ctx.fillRect(
-        i * bar_width, this.height,
-        bar_width - this.bar_spacing, -scaled_average);
+        i * bar_width + this.bar_spacing, this.height,
+        bar_width, -scaled_average);
     } else {
       this.ctx.fillRect(
         i * bar_width, this.height - scaled_average + 2,

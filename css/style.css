@@ -6,8 +6,9 @@ body {
 
 #display-container{
 	height: 500px;
+	margin: 0 auto;
 	position: relative;
-	width: 100%;
+	width: 800px;
 }
 
 #freq-display, #pitch-display{
