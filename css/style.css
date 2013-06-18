@@ -1,6 +1,6 @@
 body {
-	background-color: #000;
-	font-family: Helvetica;
+	background-color: #222;
+	font-family: HelveticaNeue, 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
 	margin: 0 auto;
 }
 
@@ -11,22 +11,90 @@ body {
 	width: 800px;
 }
 
-#freq-display, #pitch-display{
+#footer {
+	color: #111;
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0 auto;
+	margin-top: 20px;
+	text-align: center;
+	text-shadow: 0px 1px 1px #333;
+}
+
+#freq-display, #pitch-display, #intro{
 	height: inherit;
 	position: absolute;
 	width: inherit;
 }
 
-#toggle-btn {
+#intro {
+	font-size: 24px;
+	line-height: 40px;
+	padding: 15px;
+	margin-top: 75px;
+}
+
+#intro span{
+	text-shadow: 1px 1px 2px #000;
+}
+
+#intro h1{
+	color: #fff;
+}
+
+#intro p {
+	color: #aaa;
+}
+
+#pitch-display span{
+	color: #fff;
+	display: block;
+	font-size: 150px;
+	font-weight: bold;
+	margin: 0 auto;
+	margin-top: 150px;
+	text-align: center;
+	text-shadow: 1px 0px 15px #000;
+}
+
+#pitch-display .single{
+	font-size: 150px;
+}
+
+#pitch-display .multi {
+	font-size: 75px;
+}
+
+.btn {
 	background-color: #006699;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
 	color: #fff;
 	cursor: pointer;
 	display: block;
-	font-size: 18px;
+	font-size: 16px;
+	font-weight: bold;
 	margin: 0 auto;
+	margin-top: 20px;
 	padding: 10px;
-	top-margin: 20px;
+	position: relative;
 	text-align: center;
+	text-decoration: none;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
 	width: 200px;
 }
 
+.btn:active {
+	top: 1px;
+}
+
+.btn span {
+	text-shadow: -1px -1px #333;
+}
+
+.text {
+	text-shadow: 0px 1px 1px #ffffff;
+}

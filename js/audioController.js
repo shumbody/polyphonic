@@ -1,27 +1,44 @@
+/**
+ * Our main controller
+ */
 var AudioController = (function(){
 	var audioContext;
-	var analyzer;
+	var polyphonic;
+	var audioStream;
 
 	// where we display the frequency spectrum
 	var freqDisplay;
+
+	// where we display the pitch set
+	var pitchDisplay;
 
 	navigator.getMedia = (navigator.getUserMedia ||
 		navigator.webkitGetUserMedia ||
 		navigator.mozGetUserMedia ||
 		navigator.msGetUserMedia);
 
+	window.AudioContext = (window.AudioContext ||
+		window.mozAudioContext ||
+		window.webkitAudioContext ||
+		window.msAudioContext ||
+		window.oAudioContext);
+
 	var init = function(canvasId){
 		if (canvasId){
-			if (typeof AudioContext !== "undefined") {
+			if (AudioContext) {
 		        audioContext = new AudioContext();
-	        } else if (typeof webkitAudioContext !== "undefined") {
-	            audioContext = new webkitAudioContext();
 	        } else {
 	            throw new Error('AudioContext not supported.');
 	        }
 
-	        freqDisplay = new SpectrumBox(2048, 30, canvasId, audioContext);
-  			freqDisplay.getCanvasContext().fillStyle = 'rgb(255, 199, 47)';
+	        polyphonic = Polyphonic.getInstance();
+	        polyphonic.setUpdateCallback(updatePitchDisplay);
+	        polyphonic.init(audioContext);
+
+	        freqDisplay = new SpectrumBox(2048, 100, canvasId, audioContext);
+  			freqDisplay.getCanvasContext().fillStyle = 'rgb(0, 0, 0)';
+
+  			pitchDisplay = $('#pitch-display');
 		}
 	};
 
@@ -53,30 +70,69 @@ var AudioController = (function(){
 	 *
 	 **/
 	var gotStream = function(stream){
-		// Create an AudioNode from the stream
-		var mediaStreamSource = audioContext.createMediaStreamSource(stream);
+		// Store a reference to the stream so we can stop it later
+		audioStream = stream;
 
-		// Connect to analyzer
-		analyzer = audioContext.createAnalyser();
-		analyzer.fftSize = 2048;
-		mediaStreamSource.connect(analyzer);
+		// Create an AudioNode from the stream
+		var src = audioContext.createMediaStreamSource(stream);
+
+		// Connect to polyphonic analyzer
+		var analyzer = polyphonic.getAudioNode();
+		src.connect(analyzer);
 
 		// Connect to spectrum display
 		var freqNode = freqDisplay.getAudioNode();
-		mediaStreamSource.connect(freqNode);
+		analyzer.connect(freqNode);
 	}
 
-	var audioModule = {}// The public object we return
+	var updatePitchDisplay = function(pitchSet){
+		pitchDisplay.empty();
+		var str = '';
+		var disp = $('<span></span>').addClass('single');
+
+		if (pitchSet.length === 0){
+			str = '-';
+		} else {
+			str = pitchSet.join(', ');
+			if (pitchSet.length > 3){
+				disp.removeClass('single');
+				disp.addClass('multi');
+			}
+		}
+		disp.html(str);
+		pitchDisplay.append(disp);
+	}
+
+	var audioModule = {}; // The public object we return
+	var alreadyRun = false; // If we already asked for mic permission
+
 	audioModule.initialize = function(canvasId){
 		init(canvasId);
 	};
 	audioModule.run = function(){
-		// Get audio and create a stream
-		getUserMedia({audio: true}, gotStream);
+		if (!alreadyRun){
+			// Get audio and create a stream
+			getUserMedia({audio: true}, gotStream);
+			alreadyRun = true;
+		}
+		
+		// Enable pitch detection
+		polyphonic.enable();
 
 		// Enable spectrum display
 		freqDisplay.enable();
 	};
+
+	audioModule.stop = function(){
+		// Stop the audio stream
+		audioStream.stop();
+
+		// Disable pitch detection
+		polyphonic.disable();
+
+		// Disable spectrum display
+		freqDisplay.disable();
+	}
 
 	return audioModule;
 })();

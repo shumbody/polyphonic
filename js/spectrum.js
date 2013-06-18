@@ -1,8 +1,6 @@
-/*
-   SpectrumBox - A JavaScript spectral analyzer.
-   Mohit Cheppudira - 0xfe.blogspot.com
-   modified by Andrew Shum
-*/
+/**
+ * Logarithmic spectral analyzer
+ */
 
 /**
   @constructor
@@ -31,7 +29,7 @@ SpectrumBox.prototype.init = function(
   this.num_bins = num_bins;
   this.num_points = num_points;
   this.canvas_id = canvas_id;
-  this.update_rate_ms = 50;
+  this.update_rate_ms = 80;
   this.smoothing = 0.75;
   this.type = type || SpectrumBox.Types.FREQUENCY;
 
@@ -54,14 +52,16 @@ SpectrumBox.prototype.init = function(
   // Create the spectral analyzer
   this.fft = this.actx.createAnalyser();
   this.fft.fftSize = this.num_points;
+  this.fft.smoothingTimeConstant = this.smoothing;
+
   this.data = new Uint8Array(this.fft.frequencyBinCount);
 
   // Create log table
-  var factor = 1.3; // Each bin has factor times more than the last
+  var factor = 2.5; // Each bin has factor times more than the last
   var next_size = this.data.length;
   for (var i = this.num_bins - 1; i >= 0; --i){
     next_size = next_size / factor;
-    SpectrumBox.BinSizeLog[i] = Math.floor(next_size);
+    SpectrumBox.BinSizeLog[i] = Math.max(1, Math.floor(next_size));
   }
 }
 
@@ -111,8 +111,7 @@ SpectrumBox.prototype.disable = function() {
 SpectrumBox.prototype.update = function() {
   // Get the frequency samples
   data = this.data;
-  if (this.type == SpectrumBox.Types.FREQUENCY) {
-    this.fft.smoothingTimeConstant = this.smoothing;
+  if (this.type === SpectrumBox.Types.FREQUENCY) {
     this.fft.getByteFrequencyData(data);
   } else {
     this.fft.smoothingTimeConstant = 0;
@@ -120,15 +119,8 @@ SpectrumBox.prototype.update = function() {
     this.fft.getByteTimeDomainData(data);
   }
 
-  var length = data.length;
-  //if (this.valid_points > 0) length = this.valid_points;
-
   // Clear canvas then redraw graph.
   this.ctx.clearRect(0, 0, this.width, this.height);
-
-  var bin_size_log = function(bin_index, num_bins, data_length){
-    return Math.floor(Math.log(bin_index)/Math.log(data_length)*num_bins);
-  }
 
   // Break the samples up into bins
   for (var i=0; i < this.num_bins; ++i) {
@@ -144,12 +136,14 @@ SpectrumBox.prototype.update = function() {
 
     // Draw the bars on the canvas
     var bar_width = this.width / this.num_bins;
-    var scaled_average = (average / 256) * this.height;
+
+    // Cheap background noise fix - e.g. pow by 4
+    var scaled_average = Math.pow(average/256, 4) * this.height;
 
     if (this.type == SpectrumBox.Types.FREQUENCY) {
       this.ctx.fillRect(
-        i * bar_width + this.bar_spacing, this.height,
-        bar_width, -scaled_average);
+        i * bar_width, this.height,
+        bar_width - this.bar_spacing, -scaled_average);
     } else {
       this.ctx.fillRect(
         i * bar_width, this.height - scaled_average + 2,

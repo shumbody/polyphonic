@@ -1,10 +1,13 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Polyphonic Pitch Detection - by Andrew Shum</title>
+		<title>Pitch Set Detection - by Andrew Shum</title>
 
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		<script src="js/dsp.js"></script>
+
 		<script src="js/spectrum.js"></script>
+		<script src="js/polyphonic.js"></script>
 		<script src="js/audioController.js"></script>
 		<script src="js/main.js"></script>
 
@@ -13,10 +16,26 @@
 
 		<div id="display-container">
 			<canvas id="freq-display" width="800" height="500"></canvas>
-			<canvas id="pitch-display" width="800" height="500"></canvas>
+
+			<div id="pitch-display">
+			</div>
+
+			<div id="intro">
+				<span>
+					<h1>Pitch Set Detector</h1>
+
+					<p>
+						This app can be used to analyze pitch sets from polyphonic signals. Connect your microphone, get your instrument ready, and press start to begin analyzing!
+						<br/><br/>
+						Built with Web Audio API, this app is recommended to be used in Chrome.
+					</p>
+				</span>
+			</div>
 		</div>
 
-		<a id="toggle-btn">Start</a>
+		<a id="toggle-btn" class="btn"><span>Start</span></a>
+
+		<div id="footer">Version 1.0, created by Andrew Shum in 2013</div>
 
 	<body>
 	</body>
